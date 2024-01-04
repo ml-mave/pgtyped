@@ -8,11 +8,13 @@ import {
   genTypedSQLOverloadFunctions,
   TSTypedQuery,
   TypeDeclarationSet,
+  TypePairGeneration,
 } from './generator.js';
 import { TransformJob, WorkerPool } from './index.js';
 import { TypeAllocator } from './types.js';
 import { debug } from './util.js';
 import { getTypeDecsFnResult } from './worker.js';
+import { TSQueryAST } from '@pgtyped/parser';
 
 type TypedSQLTagTransformResult = TypeDeclarationSet | undefined;
 
@@ -145,11 +147,16 @@ export class TypedSqlTagTransformer {
       typeDefinitions += TypeAllocator.typeDefinitionDeclarations(
         this.transform.emitFileName,
         typeDecSet.typeDefinitions,
+        undefined,
       );
-      queryTypes += generateDeclarations(typeDecSet.typedQueries);
+      queryTypes += generateDeclarations(
+        typeDecSet.typedQueries,
+        this.config,
+        TypePairGeneration.Include,
+      );
       typedSQLOverloadFns += genTypedSQLOverloadFunctions(
         this.transform.functionName,
-        typeDecSet.typedQueries as TSTypedQuery[],
+        typeDecSet.typedQueries as TSTypedQuery<TSQueryAST>[],
       );
     }
 
